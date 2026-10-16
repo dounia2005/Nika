@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Surprise For Nika ❤️</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        roseGold: '#B76E79',
+                        blushPink: '#FFB6C1',
+                        deepRose: '#8B0000',
+                        romanticPink: '#FFF0F5',
+                        softGold: '#E6C687'
+                    },
+                    fontFamily: {
+                        cursive: ['"Great Vibes"', 'cursive'],
+                        handwriting: ['"Dancing Script"', 'cursive'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Keyframe Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes particle-float {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .animate-pulse-soft {
+            animation: pulse-soft 2.5s ease-in-out infinite;
+        }
+
+        .sparkle-element {
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .glass-card-dark {
+            background: rgba(255, 240, 245, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(230, 198, 135, 0.4);
+        }
+
+        /* Envelope Styles */
+        .envelope-wrapper {
+            perspective: 1000px;
+        }
+
+        .envelope {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .flap {
+            transform-origin: top;
+            transition: transform 0.6s ease 0.2s, z-index 0.2s ease 0.2s;
+        }
+
+        .envelope.open .flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        /* Ambient Glow Effect */
+        .glow-bg {
+            background: radial-gradient(circle at 50% 50%, rgba(255, 182, 193, 0.4) 0%, rgba(255, 240, 245, 0.8) 50%, rgba(255, 255, 255, 1) 100%);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFF0F5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFB6C1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #B76E79;
+        }
+
+        /* Card Flip */
+        .card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-container:hover .card-inner, .card-container.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased overflow-x-hidden min-h-screen relative glow-bg">
+
+    <!-- Floating Background Particles Canvas -->
+    <div id="particle-container" class="fixed inset-0 pointer-events-none z-0"></div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="relative z-10 min-h-screen flex flex-col justify-between items-center p-4 md:p-8 max-w-5xl mx-auto">
+
+        <!-- Header Controls -->
+        <header class="w-full flex justify-between items-center py-4 px-2">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid font-bold text-roseGold text-xl animate-pulse">💖</i>
+                <span class="font-handwriting text-2xl font-bold text-rose-800">For My Dearest Nika</span>
+            </div>
+            
+            <!-- Music Toggle Button -->
+            <button id="musicToggle" onclick="toggleAudio()" class="glass-card px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all flex items-center space-x-2 text-rose-700 hover:text-rose-900 border border-rose-200">
+                <i id="musicIcon" class="fa-solid fa-music text-sm"></i>
+                <span id="musicText" class="text-xs font-semibold uppercase tracking-wider">Play Soft Music</span>
+            </button>
+        </header>
+
+        <!-- STEP 1: ENVELOPE / GIFT OPENING SCREEN -->
+        <section id="envelopeSection" class="w-full my-auto flex flex-col items-center justify-center transition-all duration-700 py-12">
+            <div class="text-center mb-8 animate-float">
+                <h1 class="font-cursive text-5xl md:text-7xl text-rose-800 drop-shadow-sm mb-3">Hello, Nika ❤️</h1>
+                <p class="font-sans text-rose-600 text-sm md:text-base font-medium max-w-xs mx-auto">
+                    I made a little secret place just for you. Tap the letter below to open your surprise!
+                </p>
+            </div>
+
+            <!-- Envelope Container -->
+            <div class="envelope-wrapper cursor-pointer group" onclick="openEnvelope()">
+                <div id="envelopeObj" class="envelope w-72 h-48 md:w-96 md:h-60 bg-rose-200 rounded-lg shadow-2xl relative flex items-center justify-center border border-rose-300">
+                    
+                    <!-- Back Flap -->
+                    <div class="absolute inset-0 bg-rose-300 rounded-lg"></div>
+
+                    <!-- Letter Inside preview -->
+                    <div id="letterPreview" class="absolute w-11/12 h-5/6 bg-white rounded shadow-md top-2 transition-all duration-700 flex flex-col items-center justify-center p-4 text-center border border-rose-100">
+                        <p class="font-cursive text-2xl text-rose-700">My Heart Belongs To You</p>
+                        <i class="fa-solid fa-heart text-rose-400 mt-2 text-xl"></i>
+                    </div>
+
+                    <!-- Envelope Front & Flaps -->
+                    <div id="envelopeFlap" class="flap absolute top-0 left-0 w-0 h-0 border-l-[144px] md:border-l-[192px] border-l-transparent border-r-[144px] md:border-r-[192px] border-r-transparent border-t-[100px] md:border-t-[130px] border-t-rose-400 z-20"></div>
+                    
+                    <div class="absolute bottom-0 left-0 w-0 h-0 border-l-[144px] md:border-l-[192px] border-l-transparent border-r-[144px] md:border-r-[192px] border-r-transparent border-b-[100px] md:border-b-[130px] border-b-rose-300 z-10 rounded-b-lg"></div>
+
+                    <!-- Wax Seal -->
+                    <div id="waxSeal" class="absolute z-30 w-14 h-14 md:w-16 md:h-16 bg-red-700 rounded-full flex items-center justify-center shadow-lg border-2 border-amber-300 group-hover:scale-110 transition-transform">
+                        <span class="font-cursive text-amber-200 text-2xl font-bold">N</span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="mt-8 text-xs text-rose-400 tracking-widest uppercase font-semibold animate-pulse">
+                ✨ Click Seal To Open ✨
+            </p>
+        </section>
+
+        <!-- STEP 2: MAIN CONTENT EXPERIENCE (Initially Hidden) -->
+        <main id="mainContent" class="w-full hidden opacity-0 transition-opacity duration-1000 my-6 space-y-12">
+            
+            <!-- Hero Greeting Banner -->
+            <section class="glass-card rounded-3xl p-6 md:p-10 text-center relative overflow-hidden shadow-xl border border-rose-200">
+                <div class="absolute -right-8 -top-8 text-rose-100 text-9xl pointer-events-none font-cursive">Love</div>
+                <div class="relative z-10 max-w-2xl mx-auto space-y-4">
+                    <span class="bg-rose-100 text-rose-700 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider inline-block">
+                        A Special Message
+                    </span>
+                    <h2 class="font-cursive text-4xl md:text-6xl text-rose-900 leading-tight">
+                        Nika, You Are My Entire World
+                    </h2>
+                    <p class="font-handwriting text-2xl md:text-3xl text-rose-700">
+                        "In a room full of art, I'd still stare at you."
+                    </p>
+                    <div class="w-16 h-1 bg-gradient-to-r from-rose-300 via-rose-500 to-rose-300 mx-auto rounded-full my-4"></div>
+                    <p class="text-slate-600 text-sm md:text-base leading-relaxed">
+                        Every single day spent with you feels like a beautiful dream come true. You bring so much light, warmth, and genuine happiness into my life. Here is a little corner of the internet made purely out of my love for you!
+                    </p>
+                </div>
+            </section>
+
+            <!-- Love Stats & Live Counter -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1: Endless Love -->
+                <div class="glass-card p-6 rounded-2xl text-center flex flex-col items-center justify-center space-y-2 shadow-sm border border-rose-100">
+                    <div class="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center text-rose-600 text-xl mb-1">
+                        <i class="fa-solid fa-infinity"></i>
+                    </div>
+                    <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">My Love For You</h3>
+                    <p class="text-2xl font-bold text-rose-800">100% Unlimited</p>
+                    <p class="text-xs text-slate-500">Grows bigger with every beat of my heart.</p>
+                </div>
+
+                <!-- Card 2: Interactive Sweet Meter -->
+                <div class="glass-card p-6 rounded-2xl text-center flex flex-col items-center justify-center space-y-3 shadow-sm border border-rose-100">
+                    <div class="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center text-rose-600 text-xl">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+                    <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">Nika's Sweetness Level</h3>
+                    <div class="w-full bg-rose-100 rounded-full h-3 overflow-hidden">
+                        <div id="loveBar" class="bg-gradient-to-r from-rose-400 to-pink-500 h-full w-[99.9%] transition-all duration-500"></div>
+                    </div>
+                    <p class="text-xs text-rose-700 font-semibold">Off The Charts! 📈❤️</p>
+                </div>
+
+                <!-- Card 3: Days / Moments Count -->
+                <div class="glass-card p-6 rounded-2xl text-center flex flex-col items-center justify-center space-y-2 shadow-sm border border-rose-100">
+                    <div class="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center text-rose-600 text-xl mb-1">
+                        <i class="fa-solid fa-sparkles"></i>
+                    </div>
+                    <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">My Favorite Person</h3>
+                    <p class="text-2xl font-bold text-rose-800">Always Nika</p>
+                    <p class="text-xs text-slate-500">Today, tomorrow, & forever.</p>
+                </div>
+            </section>
+
+            <!-- Reasons Why I Love Nika (Interactive Flip Cards) -->
+            <section class="space-y-6">
+                <div class="text-center space-y-2">
+                    <h3 class="font-cursive text-4xl text-rose-800">Reasons Why I Love You</h3>
+                    <p class="text-xs text-rose-500 uppercase tracking-widest font-semibold">Tap any card to reveal a secret note</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Reason 1 -->
+                    <div class="card-container h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                        <div class="card-inner relative w-full h-full text-center">
+                            <div class="card-front absolute inset-0 glass-card rounded-2xl p-6 flex flex-col items-center justify-center space-y-3 shadow-md border border-rose-200">
+                                <i class="fa-solid fa-smile-beam text-3xl text-rose-400"></i>
+                                <p class="font-bold text-rose-900">Your Smile</p>
+                                <span class="text-xs text-rose-400">Tap to flip 💫</span>
+                            </div>
+                            <div class="card-back absolute inset-0 bg-gradient-to-br from-rose-400 to-pink-500 text-white rounded-2xl p-6 flex items-center justify-center shadow-lg">
+                                <p class="text-xs md:text-sm font-medium leading-relaxed">
+                                    Your smile can brighten up even my darkest days. It's my absolute favorite thing in the world!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reason 2 -->
+                    <div class="card-container h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                        <div class="card-inner relative w-full h-full text-center">
+                            <div class="card-front absolute inset-0 glass-card rounded-2xl p-6 flex flex-col items-center justify-center space-y-3 shadow-md border border-rose-200">
+                                <i class="fa-solid fa-hand-holding-heart text-3xl text-rose-400"></i>
+                                <p class="font-bold text-rose-900">Your Kind Heart</p>
+                                <span class="text-xs text-rose-400">Tap to flip 💫</span>
+                            </div>
+                            <div class="card-back absolute inset-0 bg-gradient-to-br from-rose-400 to-pink-500 text-white rounded-2xl p-6 flex items-center justify-center shadow-lg">
+                                <p class="text-xs md:text-sm font-medium leading-relaxed">
+                                    The warmth and care you show makes me fall deeper in love with you every single day.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reason 3 -->
+                    <div class="card-container h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                        <div class="card-inner relative w-full h-full text-center">
+                            <div class="card-front absolute inset-0 glass-card rounded-2xl p-6 flex flex-col items-center justify-center space-y-3 shadow-md border border-rose-200">
+                                <i class="fa-solid fa-laugh-squint text-3xl text-rose-400"></i>
+                                <p class="font-bold text-rose-900">How You Make Me Laugh</p>
+                                <span class="text-xs text-rose-400">Tap to flip 💫</span>
+                            </div>
+                            <div class="card-back absolute inset-0 bg-gradient-to-br from-rose-400 to-pink-500 text-white rounded-2xl p-6 flex items-center justify-center shadow-lg">
+                                <p class="text-xs md:text-sm font-medium leading-relaxed">
+                                    Life is so much funnier, sweeter, and happier whenever I am talking with you.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reason 4 -->
+                    <div class="card-container h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                        <div class="card-inner relative w-full h-full text-center">
+                            <div class="card-front absolute inset-0 glass-card rounded-2xl p-6 flex flex-col items-center justify-center space-y-3 shadow-md border border-rose-200">
+                                <i class="fa-solid fa-star text-3xl text-rose-400"></i>
+                                <p class="font-bold text-rose-900">Just Being You</p>
+                                <span class="text-xs text-rose-400">Tap to flip 💫</span>
+                            </div>
+                            <div class="card-back absolute inset-0 bg-gradient-to-br from-rose-400 to-pink-500 text-white rounded-2xl p-6 flex items-center justify-center shadow-lg">
+                                <p class="text-xs md:text-sm font-medium leading-relaxed">
+                                    You don't have to try to be special. You are uniquely, perfectly, wonderfully Nika.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Heartfelt Digital Love Letter -->
+            <section class="glass-card-dark rounded-3xl p-6 md:p-12 shadow-2xl relative border-2 border-rose-200">
+                <div class="max-w-3xl mx-auto space-y-6 text-slate-700 leading-relaxed font-sans">
+                    <div class="flex justify-between items-center border-b border-rose-200 pb-4">
+                        <span class="font-cursive text-3xl text-rose-800">My Love Letter To Nika</span>
+                        <i class="fa-solid fa-envelope-open-text text-rose-400 text-2xl"></i>
+                    </div>
+
+                    <p class="font-medium text-base md:text-lg text-slate-800">
+                        My Dearest Nika,
+                    </p>
+
+                    <p class="text-sm md:text-base">
+                        I wanted to build something special, sweet, and everlasting for you—a little corner on the internet that belongs entirely to us. Words sometimes fall short when I try to tell you how much you truly mean to me, but I hope this brings a big smile to your face today.
+                    </p>
+
+                    <p class="text-sm md:text-base">
+                        Thank you for being my safe haven, my biggest supporter, my favorite conversation, and my best friend. Every moment shared with you is a memory I hold close to my heart. No matter where we are or what we are doing, as long as I have you, everything feels complete.
+                    </p>
+
+                    <p class="text-sm md:text-base">
+                        I love you more than words can express, and I can't wait for all the sweet adventures ahead of us.
+                    </p>
+
+                    <div class="pt-6 border-t border-rose-200 flex flex-col items-end">
+                        <p class="text-xs uppercase tracking-wider text-rose-500">Forever Yours,</p>
+                        <p class="font-cursive text-3xl text-rose-800 mt-1">Your Biggest Fan ❤️</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Interactive Surprise Button (Virtual Hugs & Kisses) -->
+            <section class="text-center py-6">
+                <div class="glass-card rounded-2xl p-8 max-w-lg mx-auto space-y-4 border border-rose-200 shadow-md">
+                    <h3 class="font-cursive text-3xl text-rose-800">Need A Hug Right Now?</h3>
+                    <p class="text-xs text-slate-600">Press the button below to receive an infinite shower of love!</p>
+
+                    <button onclick="triggerLoveShower()" class="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform active:scale-95 transition-all flex items-center justify-center space-x-2 mx-auto">
+                        <i class="fa-solid fa-heart"></i>
+                        <span>Send Nika Kisses & Hugs!</span>
+                    </button>
+                    
+                    <div id="kissCounterContainer" class="hidden text-xs font-semibold text-rose-600 pt-2 animate-bounce">
+                        💖 Sent <span id="kissCount">0</span> Hugs & Kisses to Nika! 💖
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="w-full text-center py-6 text-xs text-rose-400 font-medium">
+            Crafted with endless love & magic for Nika ✨
+        </footer>
+
+    </div>
+
+    <!-- Audio Element (Relaxing Romantic Ambient synth tone via Web Audio API fallback or gentle audio synth) -->
+    <script>
+        // State variables
+        let audioPlaying = false;
+        let audioCtx = null;
+        let kissCounter = 0;
+
+        // Initialize Background Particle Animation
+        function createParticles() {
+            const container = document.getElementById('particle-container');
+            const particleCount = 20;
+            const symbols = ['❤️', '💖', '✨', '🌸', '💕'];
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'fixed pointer-events-none text-rose-300 opacity-60 z-0';
+                particle.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                
+                // Random positioning
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.fontSize = (Math.random() * 18 + 12) + 'px';
+                
+                // Random Animation
+                const duration = Math.random() * 8 + 6;
+                const delay = Math.random() * 5;
+                
+                particle.style.animation = `particle-float ${duration}s linear infinite`;
+                particle.style.animationDelay = `${delay}s`;
+
+                container.appendChild(particle);
+            }
+        }
+
+        // Open Envelope Logic
+        function openEnvelope() {
+            const envelope = document.getElementById('envelopeObj');
+            const envelopeSection = document.getElementById('envelopeSection');
+            const mainContent = document.getElementById('mainContent');
+            const waxSeal = document.getElementById('waxSeal');
+            const letterPreview = document.getElementById('letterPreview');
+
+            // Hide seal & animate flap
+            waxSeal.style.opacity = '0';
+            envelope.classList.add('open');
+
+            // Slide letter out effect
+            setTimeout(() => {
+                letterPreview.style.transform = 'translateY(-120px)';
+                letterPreview.style.zIndex = '30';
+            }, 400);
+
+            // Transition to main content
+            setTimeout(() => {
+                envelopeSection.classList.add('opacity-0', 'scale-95');
+                
+                setTimeout(() => {
+                    envelopeSection.classList.add('hidden');
+                    mainContent.classList.remove('hidden');
+                    
+                    // Fade in main content smoothly
+                    setTimeout(() => {
+                        mainContent.classList.remove('opacity-0');
+                        mainContent.classList.add('opacity-100');
+                        
+                        // Optionally auto-start romantic sound melody
+                        startSoftMelody();
+                    }, 100);
+                }, 500);
+            }, 1200);
+        }
+
+        // Trigger Explosion of Hearts (Hug Button)
+        function triggerLoveShower() {
+            kissCounter += 1;
+            document.getElementById('kissCount').innerText = kissCounter;
+            document.getElementById('kissCounterContainer').classList.remove('hidden');
+
+            const container = document.body;
+            const count = 25;
+
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('div');
+                heart.innerHTML = '💖';
+                heart.className = 'fixed text-2xl z-50 pointer-events-none animate-bounce';
+                
+                // Random placement near click/center
+                const x = Math.random() * window.innerWidth;
+                const y = window.innerHeight - 100;
+                
+                heart.style.left = x + 'px';
+                heart.style.top = y + 'px';
+                heart.style.transition = 'all 1.5s ease-out';
+
+                container.appendChild(heart);
+
+                // Animate upwards and disperse
+                setTimeout(() => {
+                    heart.style.transform = `translate(${(Math.random() - 0.5) * 300}px, -${Math.random() * 500 + 200}px) scale(${Math.random() * 1.5 + 1})`;
+                    heart.style.opacity = '0';
+                }, 50);
+
+                // Remove DOM elements after animation
+                setTimeout(() => {
+                    heart.remove();
+                }, 1600);
+            }
+        }
+
+        // Web Audio API Soft Ambient Harmonic Chimes
+        function startSoftMelody() {
+            if (audioPlaying) return;
+
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!audioCtx) audioCtx = new AudioContext();
+
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                audioPlaying = true;
+                document.getElementById('musicText').innerText = "Playing Harmony 🎶";
+                document.getElementById('musicIcon').className = "fa-solid fa-volume-high text-sm animate-pulse text-rose-600";
+
+                // Play continuous soft music notes in pentatonic scale
+                playMelodyNotes();
+            } catch (e) {
+                console.log("Audio not supported or blocked");
+            }
+        }
+
+        function playMelodyNotes() {
+            if (!audioPlaying) return;
+
+            // Soft romantic frequencies (C major / A minor pentatonic: C4, E4, G4, A4, C5, E5)
+            const notes = [261.63, 329.63, 392.00, 440.00, 523.25, 659.25];
+            const randomNote = notes[Math.floor(Math.random() * notes.length)];
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(randomNote, audioCtx.currentTime);
+
+            // Envelope for smooth warm sound
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.8);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3.5);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 3.6);
+
+            // Schedule next note
+            if (audioPlaying) {
+                setTimeout(playMelodyNotes, Math.random() * 1200 + 800);
+            }
+        }
+
+        function toggleAudio() {
+            if (audioPlaying) {
+                audioPlaying = false;
+                document.getElementById('musicText').innerText = "Play Soft Music";
+                document.getElementById('musicIcon').className = "fa-solid fa-music text-sm";
+            } else {
+                startSoftMelody();
+            }
+        }
+
+        // Execute on load
+        window.onload = function() {
+            createParticles();
+        };
+    </script>
+</body>
+</html>
